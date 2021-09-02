@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class='p-4 m-4'>
+        <div class='col-lg-5 mx-auto border rounded pt-1 '>
+            <h3 class='alert alert-light border rounded'>Create An Account </h3>
+            <form action='/signup' method="POST">
+            {% csrf_token %}
+                {% if error_message %}
+                <div class='alert alert-success' role='alert'>
+                    {{error_message}}
+                </div>
+                {%endif%}
+                <div class="form-group">
+                    <label for="">First Name</label>
+                    <input type="text" class="form-control form-control-sm" id="" value='{{values.first_name}}' placeholder="Fist Name" name='first_name' required>
+                </div>
+                <div class="form-group">
+                    <label for="">Last Name</label>
+                    <input type="text" class="form-control form-control-sm" id="" value='{{values.last_name}}' placeholder="Last Name" name='last_name' required>
+                </div>
+                <div class="form-group">
+                    <label for="">Phone Number</label>
+                    <input type="text" class="form-control form-control-sm" id="" value='{{values.phone}}' placeholder="9876543210" name='phone' required>
+                </div>
+                <div class="form-group">
+                    <label for="">Email address</label>
+                    <input type="email" class="form-control form-control-sm" id="" value='{{values.email}}' placeholder="example@gmail.com" name='email' required>
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="">Password</label>
+                    <input type="password" class="form-control form-control-sm" id="" placeholder="Password" name='password' required>
+                </div>
+                <div class='form-group text-center'>
+                    <input type='submit' value='Submit' class='btn btn-m btn-info'>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
