@@ -1,11 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,HttpResponseRedirect
 from django.http import HttpResponse, request
 from core.models import Product
 from .models import Category
 from .models import Customer
-from .models import Orders
+from .models import Order
 from django.contrib.auth.hashers import make_password, check_password
 from django.views import View
+from core.middleware.auth import auth_middleware
+from django.utils.decorators import method_decorator
 
 def index(request):
     products = None
@@ -185,7 +187,9 @@ class Signup(View):
         return error_message
 #Login Class Base
 class Login(View):
+    return_url = None
     def get(self,request):
+        Login.return_url = request.GET.get('return_url')
         return render(request,'login.html')
     def post(self, request):
         email = request.POST.get('email')
@@ -197,7 +201,12 @@ class Login(View):
             if flag:
                 request.session['customer'] = customer.id
                 #request.session['email'] = customer.email
-                return redirect('homepage')
+                #return redirect('homepage')
+                if Login.return_url:
+                    return HttpResponseRedirect(Login.return_url)
+                else:
+                    Login.return_url = None
+                    return redirect('homepage')
             else:
                 error_message = 'Email or Password is invalid !'
         else:
@@ -246,8 +255,16 @@ class CheckOut(View):
         products = Product.get_product_by_id(list(cart.keys()))
         print(customer,address,phone,cart,products)
         for product in products:
-            order = Orders(customer=Customer(id=customer),product=product,price=product.price,address=address,phone=phone,quantity=cart.get(str(product.id)))
-            #order.placeOrder();
+            order = Order(customer=Customer(id=customer),product=product,price=product.price,address=address,phone=phone,quantity=cart.get(str(product.id)))
+            order.placeOrder();
         request.session['cart'] ={}
         return redirect('cart')
     
+class OrderView(View):
+    @method_decorator(auth_middleware)
+    def get(self,request):
+        customer = request.session.get('customer')
+        orders = Order.get_order_by_customer(customer)
+        print(orders)
+        orders = orders.reverse()
+        return render(request,'order.html',{'orders':orders})
